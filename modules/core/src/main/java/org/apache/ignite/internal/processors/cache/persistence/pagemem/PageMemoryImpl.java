@@ -257,7 +257,7 @@ public class PageMemoryImpl implements PageMemoryEx {
     private long[] sizes;
 
     /** Memory metrics to track dirty pages count and page replace rate. */
-    private DataRegionMetricsImpl memMetrics;
+    private final DataRegionMetricsImpl memMetrics;
 
     /**
      * {@code False} if memory was not started or already stopped and is not supposed for any usage.
@@ -290,6 +290,7 @@ public class PageMemoryImpl implements PageMemoryEx {
     ) {
         assert ctx != null;
         assert pageSize > 0;
+        assert memMetrics != null;
 
         log = ctx.logger(PageMemoryImpl.class);
 
@@ -1912,6 +1913,11 @@ public class PageMemoryImpl implements PageMemoryEx {
     /** {@inheritDoc} */
     @Override public boolean shouldThrottle() {
         return writeThrottle.shouldThrottle();
+    }
+
+    /** @return Data region metrics. */
+    public DataRegionMetricsImpl metrics() {
+        return memMetrics;
     }
 
     /**
