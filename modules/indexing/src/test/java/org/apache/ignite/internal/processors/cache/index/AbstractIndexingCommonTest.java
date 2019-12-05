@@ -115,6 +115,7 @@ public class AbstractIndexingCommonTest extends GridCommonAbstractTest {
 
         return GridTestUtils.getFieldValue(connMgr, "usedConns");
     }
+
     /**
      * Collects index file paths from all grids for given cache. Must be called when the grid is up.
      *
@@ -185,7 +186,9 @@ public class AbstractIndexingCommonTest extends GridCommonAbstractTest {
          * @param cacheName Cache name.
          */
         public void stopBlock(String cacheName) {
-            latches.computeIfAbsent(cacheName, l -> new CountDownLatch(1)).countDown();
+            CountDownLatch latch = latches.computeIfAbsent(cacheName, l -> new CountDownLatch(1));
+
+            latch.countDown();
         }
     }
 }

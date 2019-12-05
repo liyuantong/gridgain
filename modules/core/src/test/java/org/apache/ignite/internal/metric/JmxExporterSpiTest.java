@@ -610,7 +610,7 @@ public class JmxExporterSpiTest extends AbstractExporterSpiTest {
             assertTrue(((long)txv.get("startTime")) <= System.currentTimeMillis());
 
             //Only pessimistic transactions are supported when MVCC is enabled.
-            if(Objects.equals(System.getProperty(IgniteSystemProperties.IGNITE_FORCE_MVCC_MODE_IN_TESTS), "true"))
+            if (Objects.equals(System.getProperty(IgniteSystemProperties.IGNITE_FORCE_MVCC_MODE_IN_TESTS), "true"))
                 return;
 
             GridTestUtils.runMultiThreadedAsync(() -> {
@@ -629,7 +629,7 @@ public class JmxExporterSpiTest extends AbstractExporterSpiTest {
 
             assertTrue(res);
 
-            for (int i=0; i<9; i++) {
+            for (int i = 0; i < 9; i++) {
                 txv = systemView(TXS_MON_LIST).get(new Object[] {i});
 
                 if (PESSIMISTIC.name().equals(txv.get("concurrency")))
@@ -727,7 +727,7 @@ public class JmxExporterSpiTest extends AbstractExporterSpiTest {
     /** */
     @Test
     public void testScanQuery() throws Exception {
-        try(IgniteEx client1 = startGrid("client-1");
+        try (IgniteEx client1 = startGrid("client-1");
             IgniteEx client2 = startGrid("client-2")) {
 
             IgniteCache<Integer, Integer> cache1 = client1.createCache(
@@ -825,7 +825,7 @@ public class JmxExporterSpiTest extends AbstractExporterSpiTest {
 
         TabularDataSupport qrySysView = systemView(server, SCAN_QRY_SYS_VIEW);
 
-        for (int i=0; i < qrySysView.size(); i++) {
+        for (int i = 0; i < qrySysView.size(); i++) {
             CompositeData view = systemView(SCAN_QRY_SYS_VIEW).get(new Object[] {i});
 
             if ("cache2".equals(view.get("cacheName"))) {

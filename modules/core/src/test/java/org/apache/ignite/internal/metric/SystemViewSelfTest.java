@@ -502,7 +502,7 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
     @Test
     @WithSystemProperty(key = "IGNITE_EVENT_DRIVEN_SERVICE_PROCESSOR_ENABLED", value = "true")
     public void testContinuousQuery() throws Exception {
-        try(IgniteEx originNode = startGrid(0); IgniteEx remoteNode = startGrid(1)) {
+        try (IgniteEx originNode = startGrid(0); IgniteEx remoteNode = startGrid(1)) {
             IgniteCache<Integer, Integer> cache = originNode.createCache("cache-1");
 
             SystemView<ContinuousQueryView> origQrys = originNode.context().systemView().view(CQ_SYS_VIEW);
@@ -511,7 +511,7 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
             assertEquals(0, origQrys.size());
             assertEquals(0, remoteQrys.size());
 
-            try(QueryCursor qry = cache.query(new ContinuousQuery<>()
+            try (QueryCursor qry = cache.query(new ContinuousQuery<>()
                 .setInitialQuery(new ScanQuery<>())
                 .setPageSize(100)
                 .setTimeInterval(1000)
@@ -520,7 +520,7 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
                 })
                 .setRemoteFilterFactory(() -> evt -> true)
             )) {
-                for (int i=0; i<100; i++)
+                for (int i = 0; i < 100; i++)
                     cache.put(i, i);
 
                 checkContinuousQueryView(originNode, origQrys, true);
@@ -556,12 +556,12 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
     /** */
     @Test
     public void testNodes() throws Exception {
-        try(IgniteEx g1 = startGrid(0)) {
+        try (IgniteEx g1 = startGrid(0)) {
             SystemView<ClusterNodeView> views = g1.context().systemView().view(NODES_SYS_VIEW);
 
             assertEquals(1, views.size());
 
-            try(IgniteEx g2 = startGrid(1)) {
+            try (IgniteEx g2 = startGrid(1)) {
                 awaitPartitionMapExchange();
 
                 checkViewsState(views, g1.localNode(), g2.localNode());
@@ -606,7 +606,7 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
     /** */
     @Test
     public void testTransactions() throws Exception {
-        try(IgniteEx g = startGrid(0)) {
+        try (IgniteEx g = startGrid(0)) {
             IgniteCache<Integer, Integer> cache1 = g.createCache(new CacheConfiguration<Integer, Integer>("c1")
                 .setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL));
 
@@ -623,7 +623,7 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
                 AtomicInteger cntr = new AtomicInteger();
 
                 GridTestUtils.runMultiThreadedAsync(() -> {
-                    try(Transaction tx = g.transactions().withLabel("test").txStart(PESSIMISTIC, REPEATABLE_READ)) {
+                    try (Transaction tx = g.transactions().withLabel("test").txStart(PESSIMISTIC, REPEATABLE_READ)) {
                         cache1.put(cntr.incrementAndGet(), cntr.incrementAndGet());
                         cache1.put(cntr.incrementAndGet(), cntr.incrementAndGet());
 
@@ -659,12 +659,12 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
                 assertTrue(txv.startTime() <= System.currentTimeMillis());
                 assertEquals(String.valueOf(cacheId(cache1.getName())), txv.cacheIds());
 
-                //Only pessimistic transactions are supported when MVCC is enabled.
-                if(Objects.equals(System.getProperty(IgniteSystemProperties.IGNITE_FORCE_MVCC_MODE_IN_TESTS), "true"))
+                // Only pessimistic transactions are supported when MVCC is enabled.
+                if (Objects.equals(System.getProperty(IgniteSystemProperties.IGNITE_FORCE_MVCC_MODE_IN_TESTS), "true"))
                     return;
 
                 GridTestUtils.runMultiThreadedAsync(() -> {
-                    try(Transaction tx = g.transactions().txStart(OPTIMISTIC, SERIALIZABLE)) {
+                    try (Transaction tx = g.transactions().txStart(OPTIMISTIC, SERIALIZABLE)) {
                         cache1.put(cntr.incrementAndGet(), cntr.incrementAndGet());
                         cache1.put(cntr.incrementAndGet(), cntr.incrementAndGet());
                         cache2.put(cntr.incrementAndGet(), cntr.incrementAndGet());
@@ -722,7 +722,7 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
     @Test
     @WithSystemProperty(key = IGNITE_EVENT_DRIVEN_SERVICE_PROCESSOR_ENABLED, value = "true")
     public void testLocalScanQuery() throws Exception {
-        try(IgniteEx g0 = startGrid(0)) {
+        try (IgniteEx g0 = startGrid(0)) {
             IgniteCache<Integer, Integer> cache1 = g0.createCache(
                 new CacheConfiguration<Integer, Integer>("cache1")
                     .setGroupName("group1"));
@@ -786,7 +786,7 @@ public class SystemViewSelfTest extends GridCommonAbstractTest {
     @Test
     @WithSystemProperty(key = IGNITE_EVENT_DRIVEN_SERVICE_PROCESSOR_ENABLED, value = "true")
     public void testScanQuery() throws Exception {
-        try(IgniteEx g0 = startGrid(0);
+        try (IgniteEx g0 = startGrid(0);
             IgniteEx g1 = startGrid(1);
             IgniteEx client1 = startGrid("client-1");
             IgniteEx client2 = startGrid("client-2")) {

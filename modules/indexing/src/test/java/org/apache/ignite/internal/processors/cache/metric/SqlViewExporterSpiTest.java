@@ -367,7 +367,7 @@ public class SqlViewExporterSpiTest extends AbstractExporterSpiTest {
         latch2.countDown();
 
         boolean res = waitForCondition(
-                () -> execute(ignite0, "SELECT * FROM "+ sysSchemaName() + ".TRANSACTIONS").isEmpty(), 5_000
+                () -> execute(ignite0, "SELECT * FROM " + sysSchemaName() + ".TRANSACTIONS").isEmpty(), 5_000
         );
 
         assertTrue(res);
@@ -679,7 +679,7 @@ public class SqlViewExporterSpiTest extends AbstractExporterSpiTest {
     /** */
     @Test
     public void testScanQuery() throws Exception {
-        try(IgniteEx client1 = startGrid("client-1");
+        try (IgniteEx client1 = startGrid("client-1");
             IgniteEx client2 = startGrid("client-2")) {
 
             IgniteCache<Integer, Integer> cache1 = client1.createCache(

@@ -566,7 +566,7 @@ public class JdbcThinAffinityAwarenessSelfTest extends JdbcThinAbstractSelfTest 
 
         startGrid(7);
 
-        for(int i = 0; i < NODES_CNT; i++)
+        for (int i = 0; i < NODES_CNT; i++)
             stopGrid(i);
 
         GridTestUtils.assertThrows(log, new Callable<Object>() {
@@ -577,7 +577,7 @@ public class JdbcThinAffinityAwarenessSelfTest extends JdbcThinAbstractSelfTest 
             }
         }, SQLException.class, "Failed to communicate with Ignite cluster.");
 
-        for(int i = 0; i < NODES_CNT; i++)
+        for (int i = 0; i < NODES_CNT; i++)
             startGrid(i);
 
         stopGrid(4);
@@ -725,7 +725,7 @@ public class JdbcThinAffinityAwarenessSelfTest extends JdbcThinAbstractSelfTest 
         }
 
         assertTrue("Unexpected amount of used nodes: expected [0 < nodesCnt <= " + maxNodesUsedCnt +
-                "], got [" +  nonEmptyMetricsCntr + "]",
+                "], got [" + nonEmptyMetricsCntr + "]",
             nonEmptyMetricsCntr > 0 && nonEmptyMetricsCntr <= maxNodesUsedCnt);
 
         assertEquals("Executions count doesn't match expeted value: expected [" +

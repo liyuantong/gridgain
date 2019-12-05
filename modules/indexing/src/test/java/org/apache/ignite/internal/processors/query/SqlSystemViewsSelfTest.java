@@ -311,9 +311,8 @@ public class SqlSystemViewsSelfTest extends AbstractIndexingCommonTest {
 
             assertEquals(expRow.length, resRow.size());
 
-            for (int j = 0; j < expRow.length; j++) {
-                assertEquals (expRow[j], resRow.get(j));
-            }
+            for (int j = 0; j < expRow.length; j++)
+                assertEquals(expRow[j], resRow.get(j));
         }
     }
 
@@ -337,7 +336,7 @@ public class SqlSystemViewsSelfTest extends AbstractIndexingCommonTest {
         String cacheSqlName2 = "SQL_PUBLIC_" + cacheName2;
 
         execSql("CREATE TABLE " + cacheName1 + " (ID1 INT PRIMARY KEY, MY_VAL VARCHAR)");
-        execSql("CREATE INDEX IDX_1 ON "+ cacheName1 + " (MY_VAL DESC)");
+        execSql("CREATE INDEX IDX_1 ON " + cacheName1 + " (MY_VAL DESC)");
 
         execSql("CREATE TABLE " + cacheName2 + " (ID INT PRIMARY KEY, MY_VAL VARCHAR)");
         execSql("CREATE INDEX IDX_2 ON " + cacheName2 + " (ID DESC)");
@@ -498,9 +497,9 @@ public class SqlSystemViewsSelfTest extends AbstractIndexingCommonTest {
 
         GridTestUtils.assertThrows(log,
             () ->
-                cache.query(new SqlFieldsQuery(sql).setSchema(SCHEMA_NAME)).getAll()
-            , CacheException.class,
-            "Exception calling user-defined function");
+                cache.query(new SqlFieldsQuery(sql).setSchema(SCHEMA_NAME)).getAll(),
+                CacheException.class,
+                "Exception calling user-defined function");
 
         String sqlHist = "SELECT SCHEMA_NAME, SQL, LOCAL, EXECUTIONS, FAILURES, DURATION_MIN, DURATION_MAX, LAST_START_TIME " +
             "FROM " + sysSchemaName() + ".SQL_QUERIES_HISTORY ORDER BY LAST_START_TIME";
