@@ -135,6 +135,7 @@ public interface DataRegionMetricsMXBean extends DataRegionMetrics {
      * will return average allocation rate (pages per second) for the last minute.
      *
      * @param rateTimeInterval Time interval (in milliseconds) used for allocation and eviction rates calculations.
+     * @deprecated Use {@link MetricsMxBean#configureHitRateMetric(String, long)} instead.
      */
     @MXBeanDescription(
         "Sets time interval for pages allocation and eviction monitoring purposes."
@@ -145,6 +146,7 @@ public interface DataRegionMetricsMXBean extends DataRegionMetrics {
     @MXBeanParametersDescriptions(
         "Time interval (in milliseconds) to set."
     )
+    @Deprecated
     public void rateTimeInterval(long rateTimeInterval);
 
     /**
@@ -156,6 +158,7 @@ public interface DataRegionMetricsMXBean extends DataRegionMetrics {
      * calculation overhead.
      *
      * @param subInts A number of sub-intervals.
+     * @deprecated Use {@link MetricsMxBean#configureHitRateMetric(String, long)} instead.
      */
     @MXBeanDescription(
         "Sets a number of sub-intervals to calculate allocation and eviction rates metrics."
@@ -166,5 +169,6 @@ public interface DataRegionMetricsMXBean extends DataRegionMetrics {
     @MXBeanParametersDescriptions(
         "Number of subintervals to set."
     )
+    @Deprecated
     public void subIntervals(int subInts);
 }
