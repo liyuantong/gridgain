@@ -69,6 +69,7 @@ import static org.apache.ignite.internal.processors.cache.AbstractDataTypesCover
 import static org.apache.ignite.internal.processors.cache.AbstractDataTypesCoverageTest.Dated;
 import static org.apache.ignite.internal.processors.cache.AbstractDataTypesCoverageTest.SqlStrConvertedValHolder;
 import static org.apache.ignite.internal.processors.cache.AbstractDataTypesCoverageTest.Timed;
+import static org.apache.ignite.internal.processors.query.h2.H2TableDescriptor.PK_IDX_NAME;
 import static org.apache.ignite.internal.processors.query.h2.database.H2Tree.IGNITE_THROTTLE_INLINE_SIZE_CALCULATION;
 import static org.apache.ignite.internal.processors.query.h2.opt.H2TableScanIndex.SCAN_INDEX_NAME_SUFFIX;
 
@@ -489,7 +490,13 @@ public class BasicIndexTest extends AbstractIndexingCommonTest {
         return lsnrIdx.check();
     }
 
-    /** */
+    /**
+     * Create and fills the table.
+     *
+     * @param qryProc Query processor.
+     * @param tblName Table name.
+     * @param consPkFldsNum Number of fields to use in pk, 0 - default pk, positive\negative value shows fields iteration direction.
+     */
     private void populateTable(GridQueryProcessor qryProc, String tblName, int consPkFldsNum, String... reqFlds) {
         assert consPkFldsNum <= reqFlds.length;
 
@@ -503,11 +510,17 @@ public class BasicIndexTest extends AbstractIndexingCommonTest {
             sqlIns += reqFlds[i] + ((i < reqFlds.length - 1) ? ", " : ") values (");
         }
 
-        if (consPkFldsNum > 0) {
+        if (consPkFldsNum != 0) {
             sql += " CONSTRAINT PK_PERSON PRIMARY KEY (";
 
-            for (int i = 0; i < consPkFldsNum; ++i)
-                sql += reqFlds[i] + ((i < consPkFldsNum - 1) ? ", " : "))");
+            if (consPkFldsNum > 0) {
+                for (int i = 0; i < consPkFldsNum; ++i)
+                    sql += reqFlds[i] + ((i < consPkFldsNum - 1) ? ", " : "))");
+            }
+            else {
+                for (int i = -consPkFldsNum - 1; i >= 0; --i)
+                    sql += reqFlds[i] + ((i > 0) ? ", " : "))");
+            }
         }
         else
             sql += ")";
@@ -536,6 +549,29 @@ public class BasicIndexTest extends AbstractIndexingCommonTest {
     }
 
     /**
+     *  Checks index usage with correct pk fields enumeration.
+     */
+    @Test
+    public void testCorrectFieldsSequenceInPk() throws Exception {
+        inlineSize = 10;
+
+        srvLog = new ListeningTestLogger(false, log);
+
+        IgniteEx ig0 = startGrid(0);
+
+        GridQueryProcessor qryProc = ig0.context().query();
+
+        populateTable(qryProc, TEST_TBL_NAME, -2, "FIRST_NAME", "LAST_NAME",
+            "ADDRESS", "LANG");
+
+        assertFalse(checkIdxAlreadyExistLog(
+            qryProc, "idx1", TEST_TBL_NAME, "FIRST_NAME", "LAST_NAME"));
+
+        assertTrue(checkIdxAlreadyExistLog(
+            qryProc, "idx2", TEST_TBL_NAME, "LAST_NAME", "FIRST_NAME"));
+    }
+
+    /**
      *  Checks index usage for full coverage.
      */
     @Test
@@ -557,7 +593,7 @@ public class BasicIndexTest extends AbstractIndexingCommonTest {
 
         assertTrue(checkIdxUsed(qryProc, null, TEST_TBL_NAME, "FIRST_NAME"));
 
-        assertTrue(checkIdxUsed(qryProc, "_key_PK", TEST_TBL_NAME, "FIRST_NAME",
+        assertTrue(checkIdxUsed(qryProc, PK_IDX_NAME, TEST_TBL_NAME, "FIRST_NAME",
             "LAST_NAME", "LANG", "ADDRESS"));
 
         assertTrue(checkIdxAlreadyExistLog(
@@ -572,9 +608,11 @@ public class BasicIndexTest extends AbstractIndexingCommonTest {
 
         assertTrue(checkIdxUsed(qryProc, null, TEST_TBL_NAME, "FIRST_NAME",
             "LAST_NAME", "ADDRESS", "LANG"));
+
         // first idx fields not belongs to request fields.
-        assertTrue(checkIdxUsed(qryProc, "idx2", TEST_TBL_NAME, "ADDRESS",
-            "LAST_NAME"));
+        assertTrue(checkIdxUsed(qryProc, "idx2", TEST_TBL_NAME, "ADDRESS", "LAST_NAME"));
+
+        assertTrue(checkIdxUsed(qryProc, "idx2", TEST_TBL_NAME, "LAST_NAME", "ADDRESS"));
     }
 
     /**
@@ -606,7 +644,7 @@ public class BasicIndexTest extends AbstractIndexingCommonTest {
 
         assertTrue(checkIdxUsed(qryProc, null, TEST_TBL_NAME, "FIRST_NAME"));
 
-        assertTrue(checkIdxUsed(qryProc, "_key_PK", TEST_TBL_NAME, "FIRST_NAME",
+        assertTrue(checkIdxUsed(qryProc, PK_IDX_NAME, TEST_TBL_NAME, "FIRST_NAME",
             "LAST_NAME", "LANG", "ADDRESS"));
 
         assertTrue(checkIdxAlreadyExistLog(
@@ -616,7 +654,7 @@ public class BasicIndexTest extends AbstractIndexingCommonTest {
 
         qryProc.querySqlFields(new SqlFieldsQuery(sqlIdx2), true).getAll();
 
-        // _key_PK used.
+        // PK_IDX_NAME used.
         assertTrue(checkIdxUsed(qryProc, null, TEST_TBL_NAME, "FIRST_NAME",
             "LAST_NAME", "LANG", "ADDRESS"));
 
@@ -632,7 +670,7 @@ public class BasicIndexTest extends AbstractIndexingCommonTest {
         assertTrue(checkIdxAlreadyExistLog(
             qryProc, "idx4", TEST_TBL_NAME, "FIRST_NAME", "LAST_NAME", "ADDRESS", "LANG"));
 
-        LogListener lsnrIdx4 = LogListener.matches(msg0).andMatches("_key_PK").build();
+        LogListener lsnrIdx4 = LogListener.matches(msg0).andMatches(PK_IDX_NAME).build();
 
         srvLog.registerListener(lsnrIdx4);
 
