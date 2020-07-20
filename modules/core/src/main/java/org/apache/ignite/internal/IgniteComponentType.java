@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
  * Component type.
  */
 public enum IgniteComponentType {
-    /** @deprecated Should be removed. */
+    /** @deprecated Component was removed. Enum can't be removed because enum ordinal is important. */
     @Deprecated
     IGFS(
         "org.apache.ignite.internal.processors.igfs.IgfsNoopProcessor",
@@ -35,7 +35,7 @@ public enum IgniteComponentType {
         "ignite-hadoop"
     ),
 
-    /** @deprecated Should be removed. */
+    /** @deprecated Component was removed. Enum can't be removed because enum ordinal is important. */
     @Deprecated
     HADOOP(
         "org.apache.ignite.internal.processors.hadoop.HadoopNoopProcessor",
@@ -43,7 +43,7 @@ public enum IgniteComponentType {
         "ignite-hadoop"
     ),
 
-    /** @deprecated Should be removed. */
+    /** @deprecated Component was removed. Enum can't be removed because enum ordinal is important. */
     @Deprecated
     HADOOP_HELPER(
         "org.apache.ignite.internal.processors.hadoop.HadoopNoopHelper",
@@ -51,7 +51,7 @@ public enum IgniteComponentType {
         "ignite-hadoop"
     ),
 
-    /** @deprecated Should be removed. */
+    /** @deprecated Component was removed. Enum can't be removed because enum ordinal is important. */
     @Deprecated
     IGFS_HELPER(
         "org.apache.ignite.internal.processors.igfs.IgfsNoopHelper",
