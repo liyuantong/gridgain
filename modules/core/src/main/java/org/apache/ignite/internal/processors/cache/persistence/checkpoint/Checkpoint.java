@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Data class of checkpoint information.
  */
-public class Checkpoint {
+class Checkpoint {
     /** Checkpoint entry. */
     @Nullable final CheckpointEntry cpEntry;
 

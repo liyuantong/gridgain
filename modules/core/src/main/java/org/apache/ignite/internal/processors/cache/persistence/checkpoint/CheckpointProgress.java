@@ -16,16 +16,15 @@
 
 package org.apache.ignite.internal.processors.cache.persistence.checkpoint;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.ignite.internal.processors.cache.persistence.CheckpointState;
 import org.apache.ignite.internal.util.future.GridFutureAdapter;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents information of a progress of a given checkpoint and
- * allows to obtain future to wait for a particular checkpoint state.
+ * Represents information of a progress of a given checkpoint and allows to obtain future to wait for a particular
+ * checkpoint state.
  */
 public interface CheckpointProgress {
     /**
@@ -34,80 +33,80 @@ public interface CheckpointProgress {
     public @Nullable String reason();
 
     /** */
-    public boolean inProgress();
+    boolean inProgress();
 
     /** */
-    public GridFutureAdapter futureFor(CheckpointState state);
+    GridFutureAdapter futureFor(CheckpointState state);
 
     /**
      * Mark this checkpoint execution as failed.
      *
      * @param error Causal error of fail.
      */
-    public void fail(Throwable error);
+    void fail(Throwable error);
 
     /**
      * Changing checkpoint state if order of state is correct.
      *
      * @param newState New checkpoint state.
      */
-    public void transitTo(@NotNull CheckpointState newState);
+    void transitTo(@NotNull CheckpointState newState);
 
     /**
      * @return PartitionDestroyQueue.
      */
-    public PartitionDestroyQueue getDestroyQueue();
+    PartitionDestroyQueue getDestroyQueue();
 
     /**
      * @return Counter for written checkpoint pages. Not <code>null</code> only if checkpoint is running.
      */
-    public AtomicInteger writtenPagesCounter();
+    AtomicInteger writtenPagesCounter();
 
     /**
      * @return Counter for fsynced checkpoint pages. Not  <code>null</code> only if checkpoint is running.
      */
-    public AtomicInteger syncedPagesCounter();
+    AtomicInteger syncedPagesCounter();
 
     /**
      * @return Counter for evicted pages during current checkpoint. Not <code>null</code> only if checkpoint is running.
      */
-    public AtomicInteger evictedPagesCounter();
+    AtomicInteger evictedPagesCounter();
 
     /**
      * @return Number of pages in current checkpoint. If checkpoint is not running, returns 0.
      */
-    public int currentCheckpointPagesCount();
+    int currentCheckpointPagesCount();
 
     /**
      * Sets current checkpoint pages num to store.
      *
      * @param num Pages to store.
      */
-    public void currentCheckpointPagesCount(int num);
+    void currentCheckpointPagesCount(int num);
 
-    /** Initialize all counters before checkpoint.  */
-    public void initCounters(int pagesSize);
+    /** Initialize all counters before checkpoint. */
+    void initCounters(int pagesSize);
 
     /**
      * Update synced pages in checkpoint;
      *
-     * @param deltha Pages num to update.
+     * @param delta Pages num to update.
      */
-    public void updateSyncedPages(int deltha);
+    void updateSyncedPages(int delta);
 
     /**
      * Update written pages in checkpoint;
      *
-     * @param deltha Pages num to update.
+     * @param delta Pages num to update.
      */
-    public void updateWrittenPages(int deltha);
+    void updateWrittenPages(int delta);
 
     /**
      * Update evicted pages in checkpoint;
      *
-     * @param deltha Pages num to update.
+     * @param delta Pages num to update.
      */
-    public void updateEvictedPages(int deltha);
+    void updateEvictedPages(int delta);
 
     /** Clear cp progress counters */
     public void clearCounters();

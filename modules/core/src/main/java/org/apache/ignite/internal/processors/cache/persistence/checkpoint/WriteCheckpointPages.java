@@ -29,7 +29,6 @@ import org.apache.ignite.internal.pagemem.FullPageId;
 import org.apache.ignite.internal.pagemem.store.PageStore;
 import org.apache.ignite.internal.processors.cache.persistence.DataStorageMetricsImpl;
 import org.apache.ignite.internal.processors.cache.persistence.PageStoreWriter;
-import org.apache.ignite.internal.processors.cache.persistence.file.FilePageStoreManager;
 import org.apache.ignite.internal.processors.cache.persistence.pagemem.CheckpointMetricsTracker;
 import org.apache.ignite.internal.processors.cache.persistence.pagemem.PageMemoryEx;
 import org.apache.ignite.internal.processors.cache.persistence.pagemem.PageMemoryImpl;
@@ -61,9 +60,6 @@ public class WriteCheckpointPages implements Runnable {
     /** */
     private final CountDownFuture doneFut;
 
-    /** Total pages to write, counter may be greater than {@link #writePageIds} size */
-    private final int totalPagesToWrite;
-
     /** */
     private final Runnable beforePageWrite;
 
@@ -89,7 +85,7 @@ public class WriteCheckpointPages implements Runnable {
     private final CheckpointProgressImpl curCpProgress;
 
     /** */
-    private final FilePageStoreManager storeMgr;
+    private final CheckpointPageWriterFactory.CheckpointPageWriter pageStoreWriter;
 
     /** Shutdown now. */
     private final BooleanSupplier shutdownNow;
@@ -101,7 +97,6 @@ public class WriteCheckpointPages implements Runnable {
      * @param writePageIds Collection of page IDs to write.
      * @param updStores Updating storage.
      * @param doneFut Done future.
-     * @param totalPagesToWrite Total pages to be written under this checkpoint.
      * @param beforePageWrite Action to be performed before every page write.
      * @param snapshotManager Snapshot manager.
      * @param log Logger.
@@ -110,7 +105,7 @@ public class WriteCheckpointPages implements Runnable {
      * @param throttlingPolicy Throttling policy.
      * @param pageMemoryGroupResolver Resolver of page memory by group id.
      * @param progress Checkpoint progress.
-     * @param storeMgr File page store manager.
+     * @param pageStoreWriter File page store manager.
      * @param shutdownNow Shutdown supplier.
      */
     WriteCheckpointPages(
@@ -118,7 +113,6 @@ public class WriteCheckpointPages implements Runnable {
         final GridConcurrentMultiPairQueue<PageMemoryEx, FullPageId> writePageIds,
         final ConcurrentLinkedHashMap<PageStore, LongAdder> updStores,
         final CountDownFuture doneFut,
-        final int totalPagesToWrite,
         final Runnable beforePageWrite,
         IgniteCacheSnapshotManager snapshotManager,
         IgniteLogger log,
@@ -127,14 +121,13 @@ public class WriteCheckpointPages implements Runnable {
         PageMemoryImpl.ThrottlingPolicy throttlingPolicy,
         IgniteThrowableFunction<Integer, PageMemoryEx> pageMemoryGroupResolver,
         CheckpointProgressImpl progress,
-        FilePageStoreManager storeMgr,
+        CheckpointPageWriterFactory.CheckpointPageWriter pageStoreWriter,
         BooleanSupplier shutdownNow
     ) {
         this.tracker = tracker;
         this.writePageIds = writePageIds;
         this.updStores = updStores;
         this.doneFut = doneFut;
-        this.totalPagesToWrite = totalPagesToWrite;
         this.beforePageWrite = beforePageWrite;
         this.snapshotMgr = snapshotManager;
         this.log = log;
@@ -143,7 +136,7 @@ public class WriteCheckpointPages implements Runnable {
         this.throttlingPolicy = throttlingPolicy;
         this.pageMemoryGroupResolver = pageMemoryGroupResolver;
         this.curCpProgress = progress;
-        this.storeMgr = storeMgr;
+        this.pageStoreWriter = pageStoreWriter;
         this.shutdownNow = shutdownNow;
     }
 
@@ -264,7 +257,7 @@ public class WriteCheckpointPages implements Runnable {
 
                 curCpProgress.updateWrittenPages(1);
 
-                PageStore store = storeMgr.writeInternal(groupId, pageId, buf, tag, true);
+                PageStore store = pageStoreWriter.write(fullPageId, buf, tag);
 
                 updStores.computeIfAbsent(store, k -> new LongAdder()).increment();
             }

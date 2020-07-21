@@ -76,7 +76,7 @@ public class CheckpointProgressImpl implements CheckpointProgress {
     /**
      * @param cpFreq Timeout until next checkpoint.
      */
-    public CheckpointProgressImpl(long cpFreq) {
+    CheckpointProgressImpl(long cpFreq) {
         // Avoid overflow.
         cpFreq = Math.min(TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS), cpFreq);
 

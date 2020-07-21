@@ -16,7 +16,6 @@
 
 package org.apache.ignite.internal.processors.cache.persistence;
 
-import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.cache.Cache;
+import com.google.common.collect.Lists;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteDataStreamer;
@@ -244,6 +244,10 @@ public abstract class IgnitePdsCacheRebalancingAbstractTest extends GridCommonAb
         info(">>> Done puts...");
 
         ignite2 = startGrid(2);
+
+        ignite0.cluster().active(false);
+
+        ignite0.cluster().active(true);
 
         awaitPartitionMapExchange();
 

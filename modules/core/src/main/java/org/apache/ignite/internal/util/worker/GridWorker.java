@@ -44,7 +44,7 @@ public abstract class GridWorker implements Runnable {
     private final GridWorkerListener lsnr;
 
     /** */
-    private volatile boolean finished;
+    protected volatile boolean finished;
 
     /** Whether or not this runnable is cancelled. */
     protected volatile boolean isCancelled;

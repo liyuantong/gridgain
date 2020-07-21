@@ -16,15 +16,15 @@
 
 package org.apache.ignite.internal.processors.cache.persistence.db;
 
-import javax.cache.expiry.AccessedExpiryPolicy;
-import javax.cache.expiry.CreatedExpiryPolicy;
-import javax.cache.expiry.Duration;
-import javax.cache.expiry.ExpiryPolicy;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ExpiryPolicy;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteCheckedException;
@@ -50,6 +50,8 @@ import org.apache.ignite.internal.processors.cache.IgniteCacheOffheapManager;
 import org.apache.ignite.internal.processors.cache.IgniteCacheProxy;
 import org.apache.ignite.internal.processors.cache.distributed.dht.topology.GridDhtLocalPartition;
 import org.apache.ignite.internal.processors.cache.persistence.GridCacheDatabaseSharedManager;
+import org.apache.ignite.internal.processors.cache.persistence.checkpoint.CheckpointReadWriteLock;
+import org.apache.ignite.internal.processors.cache.persistence.checkpoint.SwapCheckpoint;
 import org.apache.ignite.internal.util.lang.GridAbsPredicate;
 import org.apache.ignite.internal.util.lang.GridCursor;
 import org.apache.ignite.internal.util.typedef.PA;
@@ -248,7 +250,15 @@ public class IgnitePdsWithTtlTest extends GridCommonAbstractTest {
         }, WORKLOAD_THREADS_CNT, "updater");
 
         IgniteInternalFuture cpWriteLockUnlockFut = runAsync(() -> {
-            ReentrantReadWriteLock lock = U.field(db, "checkpointLock");
+            SwapCheckpoint swapCheckpoint = U.field(
+                db, "swapCheckpoint"
+            );
+
+            CheckpointReadWriteLock checkpointReadWriteLock = U.field(
+                swapCheckpoint.checkpointTimeoutLock(), "checkpointReadWriteLock"
+            );
+
+            ReentrantReadWriteLock lock = U.field(checkpointReadWriteLock, "checkpointLock");
 
             while (!timeoutReached.get()) {
                 try {

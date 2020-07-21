@@ -72,4 +72,13 @@ public interface DbCheckpointListener {
      * @throws IgniteCheckedException If failed.
      */
     public void beforeCheckpointBegin(Context ctx) throws IgniteCheckedException;
+
+    /**
+     * Do some actions after checkpoint end.
+     *
+     * @throws IgniteCheckedException If failed.
+     */
+    default void afterCheckpointEnd(Context ctx) throws IgniteCheckedException {
+
+    }
 }
