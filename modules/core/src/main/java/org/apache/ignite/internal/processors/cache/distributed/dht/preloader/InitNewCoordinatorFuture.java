@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.apache.ignite.IgniteCheckedException;
 import org.apache.ignite.IgniteLogger;
 import org.apache.ignite.cluster.ClusterNode;
@@ -167,11 +169,13 @@ public class InitNewCoordinatorFuture extends GridCompoundFuture implements Igni
                     ", discoAllNodes=" + U.nodeIds(discoCache.allNodes()) + ']');
             }
 
-            if (!nodes.isEmpty()) {
+            List<ClusterNode> nonCLientNodes = nodes.stream().filter(n -> !n.isClient()).collect(Collectors.toList());
+
+            if (!nonCLientNodes.isEmpty()) {
                 GridDhtPartitionsSingleRequest req = GridDhtPartitionsSingleRequest.restoreStateRequest(exchFut.exchangeId(),
                     exchFut.exchangeId());
 
-                for (ClusterNode node : nodes) {
+                for (ClusterNode node : nonCLientNodes) {
                     try {
                         GridDhtPartitionsSingleRequest sndReq = req;
 
